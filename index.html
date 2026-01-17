@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>VoiceAI Pro – Ultra Realistic TTS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* --- THEME DEFINITION (Deep Slate & Gold) --- */
+      --bg:#020617;
+      --bg-soft:rgba(15,23,42,0.96);
+      --accent:#fbbf24;       /* Gold/Amber */
+      --accent-strong:#eab308;
+      --accent-soft:rgba(234,179,8,.16);
+      --text:#f9fafb;
+      --muted:#9ca3af;
+      --border:rgba(148,163,184,0.6);
+
+      --radius-xl:26px;
+      --radius-lg:18px;
+      --radius-md:14px;
+      --radius-pill:999px;
+      --shadow-soft:0 24px 48px rgba(15,23,42,0.8);
+      --shadow-subtle:0 18px 30px rgba(15,23,42,0.55);
+      --transition:240ms ease;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+
+    /* --- BACKGROUND PATTERN & GRADIENT --- */
+    body{
+      font-family:"Poppins",sans-serif;
+      /* Deep radial gradient from top-left */
+      background:
+        radial-gradient(circle at 0% 0%,#0b1120 0,#020617 45%,#020617 100%);
+      color:var(--text);
+      min-height:100vh;
+      position:relative;
+    }
+
+    /* SVG Noise Overlay for Texture */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='6'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+      mix-blend-mode:soft-light;
+      z-index: 0;
+    }
+
+    .app-shell{
+      max-width:900px;
+      margin:0 auto;
+      padding:40px 20px;
+      display:flex;
+      flex-direction:column;
+      gap:30px;
+      min-height:100vh;
+      position:relative;
+      z-index:1;
+    }
+
+    /* HEADER */
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:16px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .logo-mark{
+      width:48px;
+      height:48px;
+      /* Golden/Amber Gradient Icon Background */
+      background:radial-gradient(circle at 30% 0%,#fbbf24,#f59e0b 45%,#7c2d12);
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 12px 32px rgba(15,23,42,.9);
+    }
+    .logo-mark svg{width:28px;height:28px;fill:#020617}
+
+    .logo-text{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .logo-title{
+      font-weight:700;
+      font-size:16px;
+      letter-spacing:.05em;
+      color:var(--text);
+    }
+    .logo-sub{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:0.1em;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Interface Language Switcher */
+    .interface-lang-select {
+        background: rgba(15,23,42,0.6);
+        border: 1px solid rgba(148,163,184,0.3);
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 6px 10px;
+        border-radius: var(--radius-pill);
+        outline: none;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+        transition: var(--transition);
+    }
+    .interface-lang-select:hover {
+        background: rgba(15,23,42,0.9);
+        color: var(--text);
+        border-color: var(--accent);
+    }
+
+    .pill-badge{
+      background:rgba(234,179,8,.14);
+      border:1px solid rgba(234,179,8,.45);
+      color:#fde047;
+      padding:6px 14px;
+      border-radius:var(--radius-pill);
+      font-size:12px;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      backdrop-filter: blur(4px);
+    }
+    .pill-dot{
+      width:8px;
+      height:8px;
+      background:#facc15;
+      border-radius:50%;
+      box-shadow:0 0 12px rgba(250,204,21,.9);
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.2);opacity:.6}
+    }
+
+    /* BROWSER WARNING CARD */
+    .browser-warning {
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.3);
+        color: #fdba74;
+        padding: 15px;
+        border-radius: var(--radius-md);
+        font-size: 13px;
+        text-align: center;
+        display: none; /* Hidden unless needed */
+        margin-bottom: 10px;
+        backdrop-filter: blur(10px);
+    }
+    .browser-warning b { color: #fff; }
+
+    /* MAIN CARD */
+    .card{
+      background:var(--bg-soft);
+      border-radius:30px;
+      border:1px solid var(--border);
+      box-shadow:var(--shadow-soft);
+      padding:24px;
+      backdrop-filter:blur(20px);
+      display:flex;
+      flex-direction:column;
+      gap:24px;
+    }
+
+    /* TOOLBAR AREA */
+    .toolbar-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+    }
+    @media(max-width: 600px) { .toolbar-grid { grid-template-columns: 1fr; } }
+
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .control-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+    }
+    
+    select.main-select {
+      width: 100%;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(148,163,184,.4);
+      padding: 14px;
+      font-size: 13px;
+      background: rgba(2, 6, 23, 0.6);
+      color: var(--text);
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    select.main-select:hover { border-color: rgba(148,163,184,0.8); }
+    select.main-select:focus {
+        border-color: var(--accent);
+        background: rgba(2, 6, 23, 1);
+        box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    /* TEXT AREA */
+    .textarea-wrap{
+      position:relative;
+      border-radius:var(--radius-lg);
+      overflow:hidden;
+      background:rgba(2, 6, 23, 0.4);
+      border:1px solid var(--border);
+      box-shadow:inset 0 2px 10px rgba(0,0,0,0.3);
+      transition: var(--transition);
+    }
+    .textarea-wrap:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    textarea{
+      width:100%;
+      border:none;
+      resize:vertical;
+      min-height:220px;
+      padding:20px;
+      font-family:"Poppins",sans-serif;
+      font-size:15px;
+      line-height:1.6;
+      background:transparent;
+      color:var(--text);
+      outline:none;
+    }
+    textarea::placeholder{
+      color:rgba(148,163,184,0.5);
+    }
+
+    /* PLAYER BAR */
+    .player-bar {
+        background: rgba(15,23,42,0.9);
+        border: 1px solid rgba(148,163,184,0.2);
+        padding: 10px 24px 10px 10px;
+        border-radius: var(--radius-pill);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .play-group {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .btn-play {
+      border:none;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background:linear-gradient(135deg,#fbbf24,#f97316); /* Gold Gradient */
+      color:#020617;
+      font-size:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(250,204,21,.3);
+      transition:all var(--transition);
+      padding-left: 4px; /* Optical center for play icon */
+    }
+    .btn-play.speaking {
+        padding-left: 0; /* Center for stop icon */
+        background: linear-gradient(135deg,#f87171,#dc2626); /* Red gradient for stop */
+        box-shadow:0 8px 20px rgba(220,38,38,.4);
+        color: white;
+    }
+    .btn-play:hover{
+      transform:scale(1.05);
+      filter: brightness(1.1);
+    }
+    .btn-play:active { transform: scale(0.95); }
+
+    .status-text {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 500;
+        display: flex;
+        flex-direction: column;
+        line-height: 1.3;
+    }
+    .status-text strong { color: var(--text); font-size: 14px; }
+
+    .timer-display {
+        text-align: right;
+    }
+    .timer-val {
+        font-family: 'Poppins', monospace; 
+        font-variant-numeric: tabular-nums;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: -0.5px;
+        text-shadow: 0 0 20px rgba(250,204,21,0.3);
+    }
+    .timer-lbl {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    footer{
+      margin-top:auto;
+      text-align: center;
+      font-size:11px;
+      color:rgba(156, 163, 175, 0.6);
+    }
+    footer span { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <header>
+      <div class="header-left">
+        <div class="logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 64 64"><path d="M18 45V19a3 3 0 0 1 4.5-2.6L39 24h7a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-7l-16.5 7.6A3 3 0 0 1 18 45Z"/></svg>
+          </div>
+          <div class="logo-text">
+            <div class="logo-title">VoiceAI PRO</div>
+            <div class="logo-sub" id="logoSub">Générateur Vocal Neural</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <select class="interface-lang-select" id="uiLangSelect" onchange="updateInterface(this.value)">
+            <option value="fr">🇫🇷 FR</option>
+            <option value="en">🇺🇸 EN</option>
+            <option value="es">🇪🇸 ES</option>
+        </select>
+        
+        <div class="pill-badge">
+            <span class="pill-dot"></span>
+            <span id="badgeText">Limite active</span>
+        </div>
+      </div>
+    </header>
+
+    <div id="browserWarn" class="browser-warning">
+      ⚠️ <span id="warnText"><b>Astuce Pro :</b> Ouvrez cette page dans <b>Microsoft Edge</b> pour débloquer les voix "Natural Online" gratuitement.</span>
+    </div>
+
+    <section class="card">
+      
+      <div class="toolbar-grid">
+          <div class="control-group">
+              <label class="control-label" id="lblLang">1. Langue Audio</label>
+              <select id="langSelect" class="main-select" onchange="loadVoices()">
+                  <option value="en">🇺🇸 Anglais (English)</option>
+                  <option value="es">🇪🇸 Espagnol (Spanish)</option>
+                  <option value="it">🇮🇹 Italien (Italian)</option>
+                  <option value="de">🇩🇪 Allemand (German)</option>
+                  <option value="ru">🇷🇺 Russe (Russian)</option>
+                  <option value="fr" selected>🇫🇷 Français (French)</option>
+              </select>
+          </div>
+          <div class="control-group">
+              <label class="control-label" id="lblVoice">2. Modèle Vocal (Trié par IA)</label>
+              <select id="voiceSelect" class="main-select">
+                  <option>Chargement des modèles...</option>
+              </select>
+          </div>
+      </div>
+
+      <div class="textarea-wrap">
+        <textarea id="textInput" placeholder="..."></textarea>
+      </div>
+
+      <div class="player-bar">
+          <div class="play-group">
+              <button class="btn-play" id="playBtn" onclick="speak()">▶</button>
+              <div class="status-text">
+                  <span id="statusLabel">Statut</span>
+                  <strong id="statusValue">Prêt à lire</strong>
+              </div>
+          </div>
+          <div class="timer-display">
+              <div class="timer-val" id="timerDisplay">15:00</div>
+              <div class="timer-lbl" id="timerLabel">Temps Restant</div>
+          </div>
+      </div>
+
+    </section>
+
+    <footer>
+      <span id="footerText">VoiceAI Pro · Traitement local dans le navigateur · Aucun envoi serveur</span>
+    </footer>
+  </div>
+
+  <script>
+    // --- TRANSLATION DATA ---
+    const i18n = {
+        fr: {
+            logoSub: "Générateur Vocal Neural",
+            badge: "Limite active",
+            warn: "<b>Astuce Pro :</b> Ouvrez cette page dans <b>Microsoft Edge</b> pour débloquer les voix Ultra-Natural (Azure) gratuitement. Chrome est limité.",
+            lblLang: "1. Langue Audio",
+            lblVoice: "2. Modèle Vocal (Trié par IA)",
+            placeholder: "COMMENT UTILISER CET OUTIL :\n\n1. Sélectionnez votre langue dans le menu 1.\n2. Choisissez une voix dans le menu 2 (Cherchez l'étoile 🌟 pour les meilleures voix).\n3. Écrivez ou collez votre texte ici.\n4. Appuyez sur le bouton Lecture en bas.\n\nAstuce : Votre limite de temps diminue uniquement lorsque l'audio joue.",
+            statusLbl: "Statut",
+            statusReady: "Prêt à lire",
+            statusGen: "Génération...",
+            statusPlay: "Lecture en cours",
+            statusEmpty: "Veuillez écrire du texte...",
+            timerLbl: "Temps Restant",
+            footer: "VoiceAI Pro · Traitement local dans le navigateur · Aucun envoi serveur",
+            alertLimit: "Limite quotidienne atteinte !",
+            voiceNo: "Aucune voix trouvée (Essayez Edge)",
+            voiceLoad: "Chargement des modèles..."
+        },
+        en: {
+            logoSub: "Neural TTS Generator",
+            badge: "Limit Active",
+            warn: "<b>Pro Tip:</b> Open this page in <b>Microsoft Edge</b> to unlock Ultra-Realistic AI voices for free. Chrome only has standard voices.",
+            lblLang: "1. Audio Language",
+            lblVoice: "2. Voice Model (AI Sorted)",
+            placeholder: "HOW TO USE THIS TOOL:\n\n1. Select your language in menu 1.\n2. Choose a voice in menu 2 (Look for the star 🌟 for the best voices).\n3. Type or paste your text here.\n4. Press the Play button below.\n\nTip: Your time limit only decreases while audio is playing.",
+            statusLbl: "Status",
+            statusReady: "Ready to speak",
+            statusGen: "Generating...",
+            statusPlay: "Playing Now",
+            statusEmpty: "Please type some text...",
+            timerLbl: "Time Remaining",
+            footer: "VoiceAI Pro · Local Browser Processing · No Server Uploads",
+            alertLimit: "Daily limit reached!",
+            voiceNo: "No voices found (Try Edge)",
+            voiceLoad: "Loading models..."
+        },
+        es: {
+            logoSub: "Generador de Voz Neural",
+            badge: "Límite Activo",
+            warn: "<b>Consejo Pro:</b> Abra esta página en <b>Microsoft Edge</b> para desbloquear voces Ultra-Realistas gratis. Chrome es limitado.",
+            lblLang: "1. Idioma del Audio",
+            lblVoice: "2. Modelo de Voz (Ordenado por IA)",
+            placeholder: "CÓMO USAR ESTA HERRAMIENTA:\n\n1. Seleccione su idioma en el menú 1.\n2. Elija una voz en el menú 2 (Busque la estrella 🌟 para las mejores voces).\n3. Escriba o pegue su texto aquí.\n4. Presione el botón de reproducción abajo.\n\nConsejo: Su límite de tiempo solo disminuye mientras se reproduce el audio.",
+            statusLbl: "Estado",
+            statusReady: "Listo para leer",
+            statusGen: "Generando...",
+            statusPlay: "Reproduciendo",
+            statusEmpty: "Por favor escriba texto...",
+            timerLbl: "Tiempo Restante",
+            footer: "VoiceAI Pro · Procesamiento local en navegador · Sin subidas al servidor",
+            alertLimit: "¡Límite diario alcanzado!",
+            voiceNo: "No se encontraron voces (Pruebe Edge)",
+            voiceLoad: "Cargando modelos..."
+        }
+    };
+
+    let currentLang = 'fr';
+
+    function updateInterface(lang) {
+        currentLang = lang;
+        const t = i18n[lang];
+
+        // Update Text Elements
+        document.getElementById('logoSub').textContent = t.logoSub;
+        document.getElementById('badgeText').textContent = t.badge;
+        document.getElementById('warnText').innerHTML = t.warn;
+        document.getElementById('lblLang').textContent = t.lblLang;
+        document.getElementById('lblVoice').textContent = t.lblVoice;
+        document.getElementById('textInput').placeholder = t.placeholder;
+        document.getElementById('statusLabel').textContent = t.statusLbl;
+        document.getElementById('timerLabel').textContent = t.timerLbl;
+        document.getElementById('footerText').textContent = t.footer;
+
+        // Reset status text if not playing
+        if (!isSpeaking) {
+            document.getElementById('statusValue').textContent = t.statusReady;
+        }
+
+        // Re-render voice list to translate default messages if needed
+        loadVoices(); 
+    }
+
+    // --- CONFIGURATION ---
+    const synth = window.speechSynthesis;
+    let voices = [];
+    let remainingTime = 15 * 60; // 15 Minutes
+    let isSpeaking = false;
+
+    // --- DETECT BROWSER ---
+    const isEdge = navigator.userAgent.indexOf("Edg") > -1;
+    if (!isEdge) {
+        document.getElementById('browserWarn').style.display = 'block';
+    }
+
+    // --- 1. LOAD VOICES ---
+    function loadVoices() {
+        voices = synth.getVoices();
+        const voiceSelect = document.getElementById('voiceSelect');
+        const langSelect = document.getElementById('langSelect');
+        const targetLang = langSelect.value;
+        const t = i18n[currentLang]; // Get current translations
+        
+        voiceSelect.innerHTML = '';
+
+        const filteredVoices = voices.filter(v => v.lang.startsWith(targetLang));
+
+        if (filteredVoices.length === 0) {
+            let opt = document.createElement('option');
+            opt.text = t.voiceNo;
+            voiceSelect.add(opt);
+            return;
+        }
+
+        // SORT: Pro/Online voices first
+        filteredVoices.sort((a, b) => {
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+            const isProA = aName.includes("online") || aName.includes("natural") || aName.includes("google");
+            const isProB = bName.includes("online") || bName.includes("natural") || bName.includes("google");
+            return isProB - isProA; 
+        });
+
+        // Fill Dropdown
+        filteredVoices.forEach(voice => {
+            let opt = document.createElement('option');
+            let name = voice.name;
+            
+            if (name.includes("Natural") || name.includes("Online") || name.includes("Google")) {
+                name = "🌟 PRO IA: " + name.replace("Microsoft", "").replace("Online (Natural) - ", "");
+            } else {
+                name = "🤖 Std: " + name;
+            }
+
+            opt.value = voice.name;
+            opt.text = name;
+            voiceSelect.add(opt);
+        });
+    }
+
+    // Force load on start
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    // --- 2. SPEAK FUNCTION ---
+    function speak() {
+        const t = i18n[currentLang];
+
+        if (synth.speaking) {
+            synth.cancel();
+            resetUI();
+            return;
+        }
+
+        const text = document.getElementById('textInput').value;
+        if (text === "") {
+            document.getElementById('statusValue').innerText = t.statusEmpty;
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        const selectedName = document.getElementById('voiceSelect').value;
+        const selectedVoice = voices.find(v => v.name === selectedName);
+        
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            utterance.lang = selectedVoice.lang; 
+        }
+
+        utterance.rate = 1.0; 
+        utterance.pitch = 1.0;
+
+        const words = text.split(' ').length;
+        const duration = Math.ceil(words / 2.5); // Approx seconds
+        deductTime(duration);
+
+        utterance.onstart = () => {
+            isSpeaking = true;
+            const btn = document.getElementById('playBtn');
+            btn.innerText = "⏹";
+            btn.classList.add('speaking');
+            
+            document.getElementById('statusLabel').innerText = t.statusGen;
+            document.getElementById('statusValue').innerText = t.statusPlay;
+            document.getElementById('statusValue').style.color = "#fbbf24";
+        };
+
+        utterance.onend = () => {
+            resetUI();
+        };
+        
+        utterance.onerror = () => {
+            resetUI();
+        }
+
+        synth.speak(utterance);
+    }
+
+    function resetUI() {
+        isSpeaking = false;
+        const t = i18n[currentLang];
+        const btn = document.getElementById('playBtn');
+        btn.innerText = "▶";
+        btn.classList.remove('speaking');
+        
+        document.getElementById('statusLabel').innerText = t.statusLbl;
+        document.getElementById('statusValue').innerText = t.statusReady;
+        document.getElementById('statusValue').style.color = "";
+    }
+
+    // --- 3. TIMER ---
+    function deductTime(seconds) {
+        remainingTime -= seconds;
+        if (remainingTime < 0) remainingTime = 0;
+        
+        const m = Math.floor(remainingTime / 60);
+        const s = remainingTime % 60;
+        document.getElementById('timerDisplay').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        
+        if(remainingTime === 0) {
+           alert(i18n[currentLang].alertLimit);
+           synth.cancel();
+           resetUI();
+        }
+    }
+
+    // INITIALIZE
+    updateInterface('fr'); // Default to French
+    loadVoices();
+
+  </script>
+</body>
+</html>
